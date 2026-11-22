@@ -34,6 +34,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -58,6 +59,8 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -69,6 +72,7 @@ private val Pink = Color(0xFFFF6F91)
 private val Blush = Color(0xFFFFE0E8)
 private val Lilac = Color(0xFFE7DDFB)
 private val Cream = Color(0xFFFFF4F6)
+private const val REPO_URL = "https://github.com/BufferUnderrunOK/boop"
 
 private sealed interface CardState {
     data object Idle : CardState
@@ -95,6 +99,8 @@ private fun BoopScreen() {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var tiles by remember { mutableStateOf(TileStore.load(context)) }
+    var showAbout by remember { mutableStateOf(false) }
+    if (showAbout) AboutDialog { showAbout = false }
     var importNote by remember { mutableStateOf<String?>(null) }
     val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
@@ -173,9 +179,14 @@ private fun BoopScreen() {
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         item {
-            Column(Modifier.padding(bottom = 10.dp, start = 4.dp)) {
-                Text("Boop", fontSize = 44.sp, fontWeight = FontWeight.Black, color = Plum)
-                Text("tap a kitty to make its Tile sing", fontSize = 16.sp, color = Plum.copy(alpha = 0.7f))
+            Row(verticalAlignment = Alignment.Top) {
+                Column(Modifier.weight(1f).padding(bottom = 10.dp, start = 4.dp)) {
+                    Text("Boop", fontSize = 44.sp, fontWeight = FontWeight.Black, color = Plum)
+                    Text("tap a kitty to make its Tile sing", fontSize = 16.sp, color = Plum.copy(alpha = 0.7f))
+                }
+                TextButton(onClick = { showAbout = true }) {
+                    Text("About", color = Plum.copy(alpha = 0.6f), fontSize = 14.sp)
+                }
             }
         }
         alarmingTile?.let { name ->
@@ -352,4 +363,39 @@ private fun FoundItBanner(tileName: String, onFound: () -> Unit) {
             Text("Found it!", fontWeight = FontWeight.Bold)
         }
     }
+}
+
+@Composable
+private fun AboutDialog(onDismiss: () -> Unit) {
+    val context = LocalContext.current
+    val version = remember {
+        runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }.getOrNull() ?: "?"
+    }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = Color.White,
+        icon = { Kitty(startled = false, shaking = false) },
+        title = { Text("Boop $version", fontWeight = FontWeight.Black, color = Plum) },
+        text = {
+            val uriHandler = LocalUriHandler.current
+            Column {
+                Text(
+                    "If you don't like this, Life360, maybe you shouldn't have purchased tile. Capitalist scum.",
+                    fontSize = 16.sp,
+                    color = Plum,
+                )
+                Spacer(Modifier.size(16.dp))
+                Text(
+                    REPO_URL.removePrefix("https://"),
+                    fontSize = 15.sp,
+                    color = Pink,
+                    textDecoration = TextDecoration.Underline,
+                    modifier = Modifier.clickable { uriHandler.openUri(REPO_URL) },
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text("OK", color = Pink, fontWeight = FontWeight.Bold) }
+        },
+    )
 }
