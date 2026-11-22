@@ -28,24 +28,46 @@ broadcast channel as `01 06 02 <00 single | 02 double> MIC[4]`. A double-press s
 `00, 00, 02`, so only `02` counts. It works alongside the official Tile app, since a Tile serves
 several channels at once.
 
+## Install a release
+
+There's no Play Store listing. Each [release](https://github.com/BufferUnderrunOK/boop/releases)
+has a signed `boop-vX.Y.Z.apk` and `get_keys.py`. **This is not for the faint of heart.** You'll
+be using a terminal and sideloading an app over USB. If "adb" means nothing to you yet, expect an
+afternoon of learning before it works.
+
+You need an **Android 13+ phone**, a computer with **Python 3** and
+[**adb**](https://developer.android.com/tools/releases/platform-tools), and your **Tile account**
+email and password.
+
+1. **Get your keys** (once): `python3 get_keys.py` asks for your Tile login and writes
+   `tile-keys.json`. Only the keys are saved.
+2. **Turn on USB debugging:**
+   1. Settings → About phone → tap **Build number** 7 times to unlock Developer options.
+   2. Settings → System → Developer options → turn on **USB debugging**.
+   3. Plug the phone in and tap **Allow** on the "Allow USB debugging?" prompt. `adb devices`
+      should then list it as `device`, not `unauthorized`.
+3. **Install and copy your keys over:**
+   ```
+   adb install -r boop-vX.Y.Z.apk
+   adb push tile-keys.json /sdcard/Download/
+   ```
+4. Open Boop, tap **Import tile-keys.json**, pick it from Downloads, then delete the copy in
+   Downloads. USB debugging can go back off.
+
+**Updates:** `adb install -r` the newer APK; your imported keys are kept. Releases are signed with
+the project's release key, so a copy you built yourself can't be updated by a release (or the
+other way round). Uninstall it first, then re-import your keys.
+
 ## Build it yourself
 
-There's no Play Store listing and no download: you build it yourself. **This is not for the
-faint of heart.** You'll be using a terminal,
-building an Android app from source, and sideloading it onto your phone over USB. If "adb" means
-nothing to you yet, expect an afternoon of learning before it works.
+For compiling it from source instead.
 
 You need:
 
-- A computer with **Python 3** and **JDK 17 or newer**.
+- Everything from "Install a release", plus **JDK 17 or newer**.
 - The **Android SDK** command-line tools, with platform 36 and build-tools installed, and
   **adb** (Android platform-tools) on your `PATH`.
-- An **Android 13+ phone** with **USB debugging** on:
-  1. Settings → About phone → tap **Build number** 7 times to unlock Developer options.
-  2. Settings → System → Developer options → turn on **USB debugging**.
-  3. Plug the phone in and tap **Allow** on the "Allow USB debugging?" prompt. `adb devices`
-     should then list it as `device`, not `unauthorized`.
-- Your **Tile account** email and password (used once, to fetch the keys).
+- An **Android 13+ phone** with USB debugging on (steps above).
 
 Then:
 

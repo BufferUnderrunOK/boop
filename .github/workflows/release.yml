@@ -41,4 +41,8 @@ jobs:
       - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" "boop-$GITHUB_REF_NAME.apk" --title "Boop $GITHUB_REF_NAME" --generate-notes
+        run: |
+          sed "s/{{TAG}}/$GITHUB_REF_NAME/g" .github/release-notes.md > "$RUNNER_TEMP/notes.md"
+          # --notes is prepended to the generated changelog (gh release create manual).
+          gh release create "$GITHUB_REF_NAME" "boop-$GITHUB_REF_NAME.apk" mac/get_keys.py \
+            --title "Boop $GITHUB_REF_NAME" --notes "$(cat "$RUNNER_TEMP/notes.md")" --generate-notes
