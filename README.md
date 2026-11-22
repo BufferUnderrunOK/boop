@@ -27,9 +27,26 @@ broadcast channel as `01 06 02 <00 single | 02 double> MIC[4]`. A double-press s
 `00, 00, 02`, so only `02` counts. It works alongside the official Tile app, since a Tile serves
 several channels at once.
 
-## Setup
+## Build it yourself
 
-You need Python 3, JDK 17+, the Android SDK (platform 36), and a phone with USB debugging.
+There's no Play Store listing and no download. Your Tile keys get compiled into your own copy, so
+everyone builds their own. **This is not for the faint of heart.** You'll be using a terminal,
+building an Android app from source, and sideloading it onto your phone over USB. If "adb" means
+nothing to you yet, expect an afternoon of learning before it works.
+
+You need:
+
+- A computer with **Python 3** and **JDK 17 or newer**.
+- The **Android SDK** command-line tools, with platform 36 and build-tools installed, and
+  **adb** (Android platform-tools) on your `PATH`.
+- An **Android 13+ phone** with **USB debugging** on:
+  1. Settings → About phone → tap **Build number** 7 times to unlock Developer options.
+  2. Settings → System → Developer options → turn on **USB debugging**.
+  3. Plug the phone in and tap **Allow** on the "Allow USB debugging?" prompt. `adb devices`
+     should then list it as `device`, not `unauthorized`.
+- Your **Tile account** email and password (used once, to fetch the keys).
+
+Then:
 
 ```
 python3 mac/get_keys.py      # asks for your Tile email + password; saves only the keys
@@ -37,8 +54,9 @@ python3 mac/get_keys.py      # asks for your Tile email + password; saves only t
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
-`get_keys.py` uses only the standard library. Adding a Tile later means running it again and
-rebuilding.
+`get_keys.py` uses only the standard library; despite the folder name it runs anywhere. Adding a
+Tile later means running it again, rebuilding, and reinstalling. Once Boop is installed you can
+turn USB debugging off again. You'll only need it to install updates.
 
 ## Read this before you use it
 
