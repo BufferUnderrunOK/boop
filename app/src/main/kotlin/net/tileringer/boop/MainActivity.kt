@@ -39,6 +39,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.lightColorScheme
@@ -79,20 +80,34 @@ private sealed interface CardState {
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val tiles = TileStore.load(this)
-        if (WatchService.isEnabled(this) && WatchService.hasPermissions(this)) WatchService.setEnabled(this, true)
+        val hasTiles = TileStore.load(this).isNotEmpty()
+        if (hasTiles && WatchService.isEnabled(this) && WatchService.hasPermissions(this)) WatchService.setEnabled(this, true)
         setContent {
             MaterialTheme(colorScheme = lightColorScheme(primary = Pink, background = Cream, surface = Color.White)) {
-                Surface(Modifier.fillMaxSize(), color = Cream) { BoopScreen(tiles) }
+                Surface(Modifier.fillMaxSize(), color = Cream) { BoopScreen() }
             }
         }
     }
 }
 
 @Composable
-private fun BoopScreen(tiles: List<TileInfo>) {
+private fun BoopScreen() {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    var tiles by remember { mutableStateOf(TileStore.load(context)) }
+    var importNote by remember { mutableStateOf<String?>(null) }
+    val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        importNote = runCatching {
+            val json = context.contentResolver.openInputStream(uri)!!.bufferedReader().use { it.readText() }
+            val count = TileStore.import(context, json)
+            tiles = TileStore.load(context)
+            // Restart Kitty watch so it picks up the new keys.
+            if (Watcher.running.value) { Watcher.stop(); WatchService.setEnabled(context, true) }
+            "Imported $count ${if (count == 1) "Tile" else "Tiles"}. You can delete tile-keys.json from this phone now."
+        }.getOrElse { it.message ?: "Couldn't read that file" }
+    }
+    fun importKeys() = importLauncher.launch(arrayOf("application/json", "text/plain", "application/octet-stream", "*/*"))
     val ringer = remember { TileRinger(context.applicationContext) }
     val states = remember { mutableStateMapOf<String, CardState>() }
     var active by remember { mutableStateOf<RingHandle?>(null) }
@@ -166,8 +181,12 @@ private fun BoopScreen(tiles: List<TileInfo>) {
         alarmingTile?.let { name ->
             item { FoundItBanner(name) { FindPhoneAlarm.stop(context) } }
         }
+        importNote?.let { note -> item { Text(note, fontSize = 14.sp, color = Plum, modifier = Modifier.padding(horizontal = 4.dp)) } }
+        if (tiles.isEmpty()) {
+            item { NoTilesYet(::importKeys) }
+            return@LazyColumn
+        }
         item { WatchToggle(watchOn, linked.size, watchNote, ::setWatch) }
-        if (tiles.isEmpty()) item { Text("No Tiles with keys were baked into this build.", color = Plum) }
         items(tiles, key = { it.id }) { tile ->
             val state = states[tile.id] ?: CardState.Idle
             TileCard(
@@ -188,6 +207,34 @@ private fun BoopScreen(tiles: List<TileInfo>) {
                     if (ringing != null) scope.launch { ringing.stop() }
                 },
             )
+        }
+        item {
+            TextButton(onClick = ::importKeys, modifier = Modifier.fillMaxWidth()) {
+                Text("New Tile? Import a fresh tile-keys.json", color = Plum.copy(alpha = 0.6f), fontSize = 14.sp)
+            }
+        }
+    }
+}
+
+@Composable
+private fun NoTilesYet(onImport: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(28.dp)).background(Color.White).padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Kitty(startled = false, shaking = false)
+        Spacer(Modifier.size(12.dp))
+        Text("No Tiles yet", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Plum)
+        Spacer(Modifier.size(8.dp))
+        Text(
+            "Run get_keys.py on a computer, copy the tile-keys.json it makes onto this phone, " +
+                "then import it here. Boop keeps the keys encrypted on this phone only.",
+            fontSize = 15.sp,
+            color = Plum.copy(alpha = 0.75f),
+        )
+        Spacer(Modifier.size(16.dp))
+        Button(onClick = onImport, colors = ButtonDefaults.buttonColors(containerColor = Pink, contentColor = Color.White)) {
+            Text("Import tile-keys.json", fontWeight = FontWeight.Bold)
         }
     }
 }

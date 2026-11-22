@@ -122,7 +122,14 @@ class TileRinger(private val context: Context) {
         try {
             return withTimeout(SCAN_TIMEOUT_MS) {
                 while (true) {
-                    val device = results.receive().device
+                    // Kitty watch may link the Tile mid-scan (a linked Tile stops advertising, so
+                    // the scan would never see it): every 2 s, check for a link and ring through it.
+                    val result = withTimeoutOrNull(2_000) { results.receive() }
+                    if (result == null) {
+                        Watcher.ringThroughLink(target.id)?.let { return@withTimeout it }
+                        continue
+                    }
+                    val device = result.device
                     if (!tried.add(device.address)) continue
                     val isTarget = target.matchesAddress(device.address)
                     // Static-address Tiles that aren't the target: skip without connecting.

@@ -18,7 +18,8 @@ account owner at login. So:
 
 1. **Once**, `mac/get_keys.py` logs in to the Tile cloud and saves each Tile's key to
    `tile-keys.json`.
-2. The Android build bakes those keys into the APK.
+2. You import `tile-keys.json` into Boop once. It keeps the keys encrypted in app-private
+   storage, with an AES key held in the Android Keystore. The APK itself contains no keys.
 3. From then on everything is local Bluetooth. No cloud, no account, no Tile app.
 
 **Kitty watch** is a foreground service that holds an authenticated connection to every Tile in
@@ -29,8 +30,8 @@ several channels at once.
 
 ## Build it yourself
 
-There's no Play Store listing and no download. Your Tile keys get compiled into your own copy, so
-everyone builds their own. **This is not for the faint of heart.** You'll be using a terminal,
+There's no Play Store listing and no download: you build it yourself. **This is not for the
+faint of heart.** You'll be using a terminal,
 building an Android app from source, and sideloading it onto your phone over USB. If "adb" means
 nothing to you yet, expect an afternoon of learning before it works.
 
@@ -50,18 +51,23 @@ Then:
 
 ```
 python3 mac/get_keys.py      # asks for your Tile email + password; saves only the keys
-./gradlew assembleDebug      # reads tile-keys.json from the repo root
+./gradlew assembleDebug
 adb install -r app/build/outputs/apk/debug/app-debug.apk
+adb push tile-keys.json /sdcard/Download/
 ```
 
+Open Boop, tap **Import tile-keys.json** and pick it from Downloads, then delete the copy in
+Downloads. The original stays on your computer.
+
 `get_keys.py` uses only the standard library; despite the folder name it runs anywhere. Adding a
-Tile later means running it again, rebuilding, and reinstalling. Once Boop is installed you can
-turn USB debugging off again. You'll only need it to install updates.
+Tile later means running it again and importing the new file ("New Tile?" at the bottom of the
+list); no rebuild needed. Once Boop is installed you can turn USB debugging off again. You'll only
+need it to install updates.
 
 ## Read this before you use it
 
-- **The APK contains your Tile keys.** Don't share the APK or publish a build. `tile-keys.json`
-  is git-ignored. Keep it that way.
+- **`tile-keys.json` is the keys to your Tiles.** It's git-ignored; keep it that way, and don't
+  leave copies lying around on your phone. The APK itself holds no keys.
 - **Never factory-reset a Tile, have Tile support deactivate it, or delete your Tile/Life360
   account.** A reset re-activates the Tile, very likely under a new key. Tile says deactivation
   and account deletion permanently disable Tiles.

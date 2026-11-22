@@ -4,18 +4,6 @@ plugins {
     alias(libs.plugins.compose.compiler)
 }
 
-// The Tile auth keys come from ../tile-keys.json (made by mac/get_keys.py, git-ignored) and are
-// baked into the APK as an asset. Never committed; a rebuild picks up new Tiles.
-val tileKeysDir = layout.buildDirectory.dir("generated/tileKeys")
-val copyTileKeys by tasks.registering(Copy::class) {
-    from(rootProject.file("tile-keys.json"))
-    into(tileKeysDir)
-    rename { "tiles.json" }
-    doFirst {
-        check(rootProject.file("tile-keys.json").isFile) { "tile-keys.json is missing: run mac/get_keys.py first" }
-    }
-}
-
 android {
     namespace = "net.tileringer.boop"
     compileSdk = 36
@@ -36,8 +24,6 @@ android {
         }
     }
 
-    sourceSets["main"].assets.srcDir(tileKeysDir)
-
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -51,8 +37,6 @@ android {
 kotlin {
     compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17) }
 }
-
-tasks.named("preBuild") { dependsOn(copyTileKeys) }
 
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
