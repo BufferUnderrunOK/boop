@@ -1,0 +1,12 @@
+.venv/
+firmware/
+ref/
+tile-keys.json
+*.log
+.gradle/
+build/
+local.properties
+__pycache__/
+screenshots/
+PLAN-boop.md
+*.bundle

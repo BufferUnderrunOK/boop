@@ -1,0 +1,19 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp" android:height="64dp"
+    android:viewportWidth="64" android:viewportHeight="64">
+    <group android:translateX="-18" android:translateY="-23">
+        <!-- shock lines -->
+        <path android:strokeColor="#FF6F91" android:strokeWidth="2" android:strokeLineCap="round" android:pathData="M37,26.5 L39.5,31 M50,24 L50,29.5 M63,26.5 L60.5,31" />
+        <!-- puffed-up fur, ears splayed -->
+        <path android:fillColor="#FFFFFF" android:strokeColor="#5B2E5E" android:strokeWidth="1.8" android:strokeLineJoin="round" android:pathData="M28,52 L21,32 L44,42 H56 L79,32 L72,52 L79,56 L72,60 L80,65 L72,69 V70 A10,10 0 0 1 62,80 H38 A10,10 0 0 1 28,70 V69 L20,65 L28,60 L21,56 Z" />
+        <path android:fillColor="#FFB3C6" android:pathData="M30,45 L26.5,37 L39,41.5 Z M70,45 L73.5,37 L61,41.5 Z" />
+        <!-- huge eyes, tiny pupils -->
+        <path android:fillColor="#FFFFFF" android:strokeColor="#5B2E5E" android:strokeWidth="1.6" android:pathData="M35.5,58 a6,6.4 0 1 0 12,0 a6,6.4 0 1 0 -12,0 Z M52.5,58 a6,6.4 0 1 0 12,0 a6,6.4 0 1 0 -12,0 Z" />
+        <path android:fillColor="#5B2E5E" android:pathData="M40,58.4 a1.5,1.5 0 1 0 3,0 a1.5,1.5 0 1 0 -3,0 Z M57,58.4 a1.5,1.5 0 1 0 3,0 a1.5,1.5 0 1 0 -3,0 Z" />
+        <!-- nose + "o!" mouth -->
+        <path android:fillColor="#FF7FA0" android:pathData="M48.5,66 H51.5 L50,67.8 Z" />
+        <path android:fillColor="#5B2E5E" android:pathData="M47.6,72.2 a2.4,3 0 1 0 4.8,0 a2.4,3 0 1 0 -4.8,0 Z" />
+        <!-- sweat drop -->
+        <path android:fillColor="#9AD0FF" android:strokeColor="#5B2E5E" android:strokeWidth="0.9" android:pathData="M68,45 Q72.5,51.5 68,53.5 Q63.5,51.5 68,45 Z" />
+    </group>
+</vector>
