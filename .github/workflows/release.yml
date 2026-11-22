@@ -1,0 +1,44 @@
+# Builds a signed APK for every v* tag and publishes it as a GitHub Release.
+# Needs two repo secrets: BOOP_KEYSTORE_BASE64 and BOOP_KEYSTORE_PASSWORD (key alias is "boop").
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write  # to create the release
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+
+      - name: Restore signing key
+        env:
+          BOOP_KEYSTORE_BASE64: ${{ secrets.BOOP_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$BOOP_KEYSTORE_BASE64" ]; then echo "::error::BOOP_KEYSTORE_BASE64 secret is missing"; exit 1; fi
+          echo "$BOOP_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/boop-release.jks"
+
+      - name: Build signed APK
+        env:
+          BOOP_KEYSTORE: ${{ runner.temp }}/boop-release.jks
+          BOOP_KEYSTORE_PASSWORD: ${{ secrets.BOOP_KEYSTORE_PASSWORD }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          ./gradlew --no-daemon assembleRelease -PboopVersionName="$VERSION" -PboopVersionCode="$GITHUB_RUN_NUMBER"
+          cp app/build/outputs/apk/release/app-release.apk "boop-$GITHUB_REF_NAME.apk"
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs "boop-$GITHUB_REF_NAME.apk" | head -3
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" "boop-$GITHUB_REF_NAME.apk" --title "Boop $GITHUB_REF_NAME" --generate-notes
