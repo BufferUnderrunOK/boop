@@ -59,8 +59,10 @@ suspend fun handshake(session: GattSession, tile: TileInfo): TileProtocolMachine
         while (machine.state() != TileProtocolMachine.State.READY) {
             val packet = session.notifications.receive()
             val events = session.process(machine.receive(packet))
-            android.util.Log.d("BoopHandshake", "${tile.name} <- ${packet.joinToString("") { "%02x".format(it) }} -> " +
-                events.joinToString { if (it is ProtocolEvent.Write) "W:" + it.bytes.joinToString("") { b -> "%02x".format(b) } else it::class.simpleName ?: "?" })
+            if (BuildConfig.DEBUG) {
+                android.util.Log.d("BoopHandshake", "${tile.name} <- ${packet.joinToString("") { "%02x".format(it) }} -> " +
+                    events.joinToString { if (it is ProtocolEvent.Write) "W:" + it.bytes.joinToString("") { b -> "%02x".format(b) } else it::class.simpleName ?: "?" })
+            }
         }
     }
     return machine

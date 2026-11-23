@@ -12,6 +12,7 @@ import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.os.IBinder
 import android.Manifest
+import androidx.core.content.edit
 
 /** Foreground service that keeps [Watcher] alive. Android requires the ongoing notification. */
 class WatchService : Service() {
@@ -74,7 +75,7 @@ class WatchService : Service() {
         }
 
         fun setEnabled(context: Context, enabled: Boolean) {
-            context.getSharedPreferences(PREFS, MODE_PRIVATE).edit().putBoolean(KEY_WATCH, enabled).apply()
+            context.getSharedPreferences(PREFS, MODE_PRIVATE).edit { putBoolean(KEY_WATCH, enabled) }
             if (enabled) context.startForegroundService(Intent(context, WatchService::class.java))
             else context.startService(Intent(context, WatchService::class.java).setAction(ACTION_STOP))
         }
@@ -94,6 +95,8 @@ class WatchService : Service() {
 /** Restarts Kitty watch after a reboot or app update, if it was on. */
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
+        // Exported for the system's broadcasts, so ignore anything else another app might send.
+        if (intent.action != Intent.ACTION_BOOT_COMPLETED && intent.action != Intent.ACTION_MY_PACKAGE_REPLACED) return
         if (WatchService.isEnabled(context) && WatchService.hasPermissions(context)) {
             context.startForegroundService(Intent(context, WatchService::class.java))
         }

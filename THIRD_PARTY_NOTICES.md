@@ -9,6 +9,7 @@ https://github.com/colonelpanic8/tile-wear (commit fa914c9)
 - `app/src/main/kotlin/net/tileringer/boop/protocol/Crypto.kt`: copied (package line changed).
 - `app/src/main/kotlin/net/tileringer/boop/protocol/TileProtocolMachine.kt`: copied (package line changed; button-press event added).
 - `app/src/main/kotlin/net/tileringer/boop/GattSession.kt` and `TileRinger.kt`: adapted.
+- `app/src/test/kotlin/net/tileringer/boop/protocol/TileProtocolTest.kt`: ported (package changed; one tile-wear-only test dropped). `RoyalSt1TraceTest.kt` follows its `RealProTraceTest` pattern.
 
 ```
 MIT License

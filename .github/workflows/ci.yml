@@ -1,0 +1,36 @@
+# Every push to main and every pull request: check the Gradle wrapper, run unit tests and lint,
+# and make sure the app builds. (The real-Tile trace replay is skipped here: it needs a Tile's
+# auth key, which never goes into the repo or CI.)
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      # gradle-wrapper.jar is a committed binary: make sure it's a genuine Gradle release.
+      - uses: gradle/actions/wrapper-validation@v6
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+
+      - name: Unit tests, lint, debug build
+        run: ./gradlew --no-daemon testDebugUnitTest lintDebug assembleDebug
+
+      - name: Test and lint reports
+        if: failure()
+        run: |
+          find app/build/test-results -name '*.xml' -exec grep -l '<failure' {} + 2>/dev/null | xargs -r cat
+          grep -o 'severity="Error"[^>]*message="[^"]*"' app/build/reports/lint-results-debug.xml 2>/dev/null || true

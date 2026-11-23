@@ -153,17 +153,18 @@ private class TileLink(val tile: TileInfo, val session: GattSession, val machine
     suspend fun pump(context: Context) {
         while (true) {
             val packet = session.notifications.receiveCatching().getOrNull() ?: return
-            // Button presses arrive on the Tile's broadcast channel (CID 1), not ours:
-            // 01 | 06 (TDT) | 02 (notify) | 00 single / 02 double | MIC[4]. Seen live from a
-            // ROYAL_ST1, 2026-11-22: a double-press sends 00, 00, 02. MIC not verified (broadcast
-            // key scheme undocumented); worst case a spoofer makes the phone yowl.
-            if (packet.size >= 4 && packet[0].toInt() == BROADCAST_CID && packet[1].toInt() == TDT && packet[2].toInt() == TDT_NOTIFY) {
-                Log.d(TAG, "${tile.name} button ${packet[3]}")
-                if (packet[3].toInt() == 0x02) onDoublePress(context)
+            // Button presses come on the broadcast channel, which the protocol machine ignores.
+            val press = ButtonPacket.parse(packet)
+            if (press != null) {
+                if (BuildConfig.DEBUG) Log.d(TAG, "${tile.name} button ${if (press) "double" else "single"}")
+                if (press) onDoublePress(context)
                 continue
             }
+            if (packet.size >= 2 && packet[0].toInt() == 1) continue // other broadcast traffic
             val events = session.process(machine.receive(packet))
-            Log.d(TAG, "${tile.name} <- ${packet.joinToString("") { "%02x".format(it) }} -> ${events.map { it::class.simpleName }}")
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "${tile.name} <- ${packet.joinToString("") { "%02x".format(it) }} -> ${events.map { it::class.simpleName }}")
+            }
             for (event in events) when (event) {
                 is ProtocolEvent.ButtonPress -> if (event.double) onDoublePress(context)
                 is ProtocolEvent.RingStarted -> ringStarted?.complete(Unit)
@@ -179,11 +180,6 @@ private class TileLink(val tile: TileInfo, val session: GattSession, val machine
         if (FindPhoneAlarm.isAlarming) FindPhoneAlarm.stop(context) else FindPhoneAlarm.start(context, tile.name)
     }
 
-    private companion object {
-        const val BROADCAST_CID = 1
-        const val TDT = 6
-        const val TDT_NOTIFY = 2
-    }
 
     suspend fun ring(): RingHandle {
         val started = CompletableDeferred<Unit>()

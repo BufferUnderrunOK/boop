@@ -55,7 +55,7 @@ object TileStore {
         return tiles.size
     }
 
-    private fun parse(json: String): List<TileInfo> {
+    internal fun parse(json: String): List<TileInfo> {
         val array = JSONArray(json)
         return (0 until array.length()).map { array.getJSONObject(it) }
             .filter { !it.isNull("auth_key") && it.optString("tile_id").length == 16 }

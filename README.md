@@ -103,6 +103,17 @@ need it to install updates.
 - Tested end to end on one Tile model (product code `ROYAL_ST1`): ringing and double-press. Two
   other models connected and authenticated, but ringing them wasn't tried.
 
+## Tests
+
+```
+./gradlew testDebugUnitTest
+```
+
+Unit tests cover the protocol (known-answer tests from tile-wear), Tile ID ↔ address matching,
+key-file parsing, and button packets captured from a real Tile. CI runs them, plus lint, on every
+push. One more test replays a real Tile session byte for byte. It needs that Tile's auth key, so
+it only runs when you set `BOOP_TRACE_AUTH_KEY`.
+
 ## Mac test harness (optional)
 
 `mac/` holds the scripts used to prove the protocol before the app existed. They drive a USB
