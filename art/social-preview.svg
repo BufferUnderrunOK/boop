@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
+  <rect width="1280" height="640" fill="#FFF4F6"/>
+  <!-- soft confetti dots -->
+  <g fill="#FFE0E8">
+    <circle cx="1180" cy="90" r="38"/><circle cx="1110" cy="560" r="24"/><circle cx="640" cy="80" r="16"/><circle cx="90" cy="580" r="28"/>
+  </g>
+  <!-- kitty badge -->
+  <circle cx="330" cy="330" r="235" fill="#FFE0E8"/>
+  <g transform="translate(330 340) rotate(-6) translate(-260 -270.4) scale(5.2)">
+    <path stroke="#FF6F91" stroke-width="2" stroke-linecap="round" fill="none" d="M37,26.5 L39.5,31 M50,24 L50,29.5 M63,26.5 L60.5,31"/>
+    <path fill="#FFFFFF" stroke="#5B2E5E" stroke-width="1.8" stroke-linejoin="round" d="M28,52 L21,32 L44,42 H56 L79,32 L72,52 L79,56 L72,60 L80,65 L72,69 V70 A10,10 0 0 1 62,80 H38 A10,10 0 0 1 28,70 V69 L20,65 L28,60 L21,56 Z"/>
+    <path fill="#FFB3C6" d="M30,45 L26.5,37 L39,41.5 Z M70,45 L73.5,37 L61,41.5 Z"/>
+    <path fill="#FFFFFF" stroke="#5B2E5E" stroke-width="1.6" d="M35.5,58 a6,6.4 0 1 0 12,0 a6,6.4 0 1 0 -12,0 Z M52.5,58 a6,6.4 0 1 0 12,0 a6,6.4 0 1 0 -12,0 Z"/>
+    <path fill="#5B2E5E" d="M40,58.4 a1.5,1.5 0 1 0 3,0 a1.5,1.5 0 1 0 -3,0 Z M57,58.4 a1.5,1.5 0 1 0 3,0 a1.5,1.5 0 1 0 -3,0 Z"/>
+    <path fill="#FF7FA0" d="M48.5,66 H51.5 L50,67.8 Z"/>
+    <path fill="#5B2E5E" d="M47.6,72.2 a2.4,3 0 1 0 4.8,0 a2.4,3 0 1 0 -4.8,0 Z"/>
+    <path fill="#9AD0FF" stroke="#5B2E5E" stroke-width="0.9" d="M68,45 Q72.5,51.5 68,53.5 Q63.5,51.5 68,45 Z"/>
+  </g>
+  <!-- music notes -->
+  <g fill="#FF6F91" font-weight="700">
+    <text x="520" y="160" font-size="64">♪</text><text x="96" y="170" font-size="52">♫</text>
+  </g>
+  <!-- words -->
+  <g font-family="Avenir Next" fill="#5B2E5E">
+    <text x="618" y="290" font-size="172" font-family="Arial Rounded MT Bold">Boop</text>
+    <text x="626" y="368" font-size="36" font-weight="600" fill-opacity="0.8">Ring your Tile trackers from Android.</text>
+    <text x="626" y="414" font-size="36" font-weight="600" fill-opacity="0.8">No Tile or Life360 app needed.</text>
+    <text x="626" y="474" font-size="30" font-weight="600" fill="#FF6F91">Double-press a Tile and your phone yowls.</text>
+  </g>
+  <rect x="622" y="512" width="330" height="54" rx="27" fill="#E7DDFB"/>
+  <text x="787" y="548" text-anchor="middle" font-family="Avenir Next" font-size="24" font-weight="700" fill="#5B2E5E">Unofficial · Android 13+</text>
+</svg>

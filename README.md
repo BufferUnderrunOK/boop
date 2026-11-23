@@ -1,5 +1,7 @@
 # Boop
 
+![Boop: a startled kitty. Ring your Tile trackers from Android. No Tile or Life360 app needed. Double-press a Tile and your phone yowls.](art/social-preview.png)
+
 Ring your own Tile trackers from an Android phone without the Tile or Life360 app. And the
 other way around: double-press a Tile to make the phone yowl.
 
